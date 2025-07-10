@@ -5,18 +5,20 @@ Device Manager Application is a REST API built with Spring Boot to manage device
 It provides endpoints to perform CRUD operations on devices.
 
 ## Features
-• Create a new device. 🚧
-• Fully and/or partially update an existing device. 🚧
-• Fetch a single device. 🚧
-• Fetch all devices. 🚧
-• Fetch devices by brand. 🚧
-• Fetch devices by state. 🚧
-• Delete a single device. 🚧
+- Create a new device. 🚧
+- Fully and/or partially update an existing device. 🚧
+- Fetch a single device. 🚧
+- Fetch all devices. 🚧
+- Fetch devices by brand. 🚧
+- Fetch devices by state. 🚧
+- Delete a single device. 🚧
 
 ## Technologies Used
 - Java
 - Spring Boot
 - Maven
+- Docker
+- PostgreSQL
 
 ## Getting Started
 
@@ -27,4 +29,4 @@ It provides endpoints to perform CRUD operations on devices.
 ### Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/samuel-marcos_pedo/device-manager.git
+   git clone https://github.com/samuelpmvm/device-manager.git
