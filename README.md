@@ -1,5 +1,7 @@
 # Device Manager Application
 
+[![License](https://img.shields.io/github/license/samuelpmvm/device-manager)](LICENSE)
+
 ## Overview
 Device Manager Application is a REST API built with Spring Boot to manage device resources. 
 It provides endpoints to perform CRUD operations on devices.
