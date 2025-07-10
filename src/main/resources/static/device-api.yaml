@@ -1,0 +1,78 @@
+openapi: 3.0.3
+info:
+  title: Device API
+  description: An API for managing devices in a system.
+  version: 1.0.0
+
+paths:
+  /devices:
+    post:
+      tags:
+        - DeviceController
+      summary: Create a new device
+      description: Endpoint to create a new device in the system. 
+                  Accepts a `DeviceDto` object in the request body and returns the created device.
+      operationId: createDevice
+      requestBody:
+        required: true
+        content:
+          application/device-request-v1+json:
+            schema:
+              $ref: '#/components/schemas/DeviceDto'
+      responses:
+        '201':
+          description: Device created successfully
+          content:
+            application/device-response-v1+json:
+              example:
+                id: "123e4567-e89b-12d3-a456-426614174000"
+                name: "Device Name"
+                state: available
+                createdAt: "2023-10-01T12:00:00Z"
+              schema:
+                $ref: '#/components/schemas/DeviceDto'
+        '400':
+          description: Bad request, invalid input data
+        '500':
+          description: Internal server error
+components:
+  schemas:
+    StateDto:
+      description: |
+        State of Device. Possible values are:
+        - `available`: The device is available for use.
+        - `in-use`: The device is currently in use.
+        - `inactive`: The device is inactive and not operational.
+      example: available
+      enum:
+        - available
+        - in-use
+        - inactive
+    DeviceDto:
+      type: object
+      description: Representation of a device in the system.
+      example:
+        name: "Device Name"
+        brand: "Device Brand"
+        state: available
+      required:
+        - name
+        - brand
+        - state
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the device
+        name:
+          type: string
+          description: Name of the device
+        brand:
+          type: string
+          description: Brand of the device
+        state:
+          $ref: '#/components/schemas/StateDto'
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the device was created

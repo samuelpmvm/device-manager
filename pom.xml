@@ -35,6 +35,8 @@
 	<properties>
 		<java.version>21</java.version>
 		<test.containers.version>1.21.3</test.containers.version>
+		<openapi-generator.version>7.5.0</openapi-generator.version>
+		<openapi.version>2.8.6</openapi.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -66,7 +68,16 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-api</artifactId>
+			<version>${openapi.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>${openapi.version}</version>
+		</dependency>
 		<!-- Dependency tests -->
 		<dependency>
 			<groupId>org.testcontainers</groupId>
@@ -88,6 +99,29 @@
 	</dependencies>
 
 	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>build-helper-maven-plugin</artifactId>
+					<version>3.4.0</version>
+					<executions>
+						<execution>
+							<id>add-source</id>
+							<phase>generate-sources</phase>
+							<goals>
+								<goal>add-source</goal>
+							</goals>
+							<configuration>
+								<sources>
+									<source>${project.build.directory}/generated-sources/device-api/src/main/java</source>
+								</sources>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -112,6 +146,36 @@
 						</exclude>
 					</excludes>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.openapitools</groupId>
+				<artifactId>openapi-generator-maven-plugin</artifactId>
+				<version>${openapi-generator.version}</version>
+				<executions>
+				<execution>
+					<id>generate-device-manager-api</id>
+					<goals>
+						<goal>generate</goal>
+					</goals>
+					<configuration>
+						<inputSpec>${project.basedir}/src/main/resources/static/device-api.yaml</inputSpec>
+						<generatorName>spring</generatorName>
+						<output>${project.build.directory}/generated-sources/device-api</output>
+						<apiPackage>com.api.device</apiPackage>
+						<modelPackage>com.model.device</modelPackage>
+						<configOptions>
+							<serializationLibrary>jackson</serializationLibrary>
+							<openApiNullable>false</openApiNullable>
+							<interfaceOnly>true</interfaceOnly>
+							<generateSupportingFiles>false</generateSupportingFiles>
+							<unhandledException>true</unhandledException>
+							<useTags>true</useTags>
+							<serializableModel>true</serializableModel>
+							<useJakartaEe>true</useJakartaEe>
+						</configOptions>
+					</configuration>
+				</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
