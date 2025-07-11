@@ -33,8 +33,16 @@ paths:
                 $ref: '#/components/schemas/DeviceDto'
         '400':
           description: Bad request, invalid input data
+          content:
+            application/device-error-v1+json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
         '500':
           description: Internal server error
+          content:
+            application/device-error-v1+json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
 components:
   schemas:
     StateDto:
@@ -76,3 +84,32 @@ components:
           type: string
           format: date-time
           description: Timestamp when the device was created
+    ApiErrorResponse:
+      type: object
+      description: Error response for API calls.
+      properties:
+        code:
+          $ref: '#/components/schemas/ApiErrorCode'
+        userMessage:
+          type: string
+          description: A message explaining the error encountered during the API call, intended for end-users.
+        developerMessage:
+          type: string
+          description: Detailed error message for developers.
+      required:
+        - code
+        - userMessage
+        - developerMessage
+      example:
+        code: "BAD_REQUEST"
+        message: "Invalid input data"
+        developerMessage: "Required request body is missing: ..."
+    ApiErrorCode:
+      enum:
+        - INTERNAL_SERVER_ERROR
+        - BAD_REQUEST
+        - MEDIA_TYPE_NOT_SUPPORTED
+        - METHOD_NOT_ALLOWED
+        - DEVICE_NOT_FOUND
+        - RESOURCE_NOT_FOUND
+        - DEVICE_IN_USE
