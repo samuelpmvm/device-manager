@@ -63,6 +63,24 @@ http://localhost:8080/device-manager/swagger-ui/index.html
 - `GET /devices/state/{state}`: Fetch devices by state. 🚧
 - `DELETE /devices/{id}`: Delete a single device. 🚧
 
+## 🧪 Running Tests
+
+Run all tests
+```bash
+  ./mvnw test
+```
+
+Run unit tests
+```bash
+  ./mvnw test -Dgroups=unit
+```
+
+Run integration tests
+```bash
+  ./mvnw test -Dgroups=integration
+```
+
+
 ## 🛠 GitHub Actions CI/CD
 
 Pipeline steps:

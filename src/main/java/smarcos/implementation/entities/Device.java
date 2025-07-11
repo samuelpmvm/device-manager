@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
@@ -29,8 +29,8 @@ public class Device {
     @Enumerated(EnumType.STRING)
     private StateDto state;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime creationTime;
+    @Column(nullable = false, updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime creationTime;
 
     public boolean isInUse() {
         return StateDto.IN_USE == state;

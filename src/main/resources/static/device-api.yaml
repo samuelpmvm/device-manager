@@ -72,7 +72,7 @@ components:
           description: Brand of the device
         state:
           $ref: '#/components/schemas/StateDto'
-        createdAt:
+        creationTime:
           type: string
           format: date-time
           description: Timestamp when the device was created
