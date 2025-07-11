@@ -44,7 +44,7 @@ paths:
         - DeviceController
       summary: Update an existing device
       description: Endpoint to update an existing device in the system. 
-                  Accepts a `DeviceFullUpdateRequest` object in the request body and returns the updated device.
+                  Accepts a `DeviceCreationRequest` object in the request body and returns the updated device.
       operationId: updateDevice
       parameters:
         - name: id
@@ -91,6 +91,58 @@ paths:
             application/device-error-v1+json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponse'
+    patch:
+      tags:
+        - DeviceController
+      summary: Partially update an existing device
+      description: Endpoint to partially update an existing device in the system.
+        Accepts a `DevicePartiallyUpdateRequest` object in the request body and returns the updated device.
+      operationId: partiallyUpdateDevice
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique identifier of the device to be updated
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/device-request-v1+json:
+            schema:
+              $ref: '#/components/schemas/DevicePartiallyUpdateRequest'
+      responses:
+        '200':
+          description: Device updated successfully
+          content:
+            application/device-response-v1+json:
+              schema:
+                $ref: '#/components/schemas/DeviceResponse'
+        '400':
+          description: Bad request, invalid input data
+          content:
+            application/device-error-v1+json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: Device not found
+          content:
+            application/device-error-v1+json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '409':
+          description: Device in use, cannot update
+          content:
+            application/device-error-v1+json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/device-error-v1+json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
 components:
   schemas:
     StateDto:
@@ -106,7 +158,7 @@ components:
         - inactive
     DeviceCreationRequest:
       type: object
-      description: Represents a request to create/update a new device in the system.
+      description: Represents a request to create/update a device in the system.
       example:
         name: "Device Name"
         brand: "Device Brand"
@@ -115,6 +167,20 @@ components:
         - name
         - brand
         - state
+      properties:
+        name:
+          type: string
+          description: Name of the device
+        brand:
+          type: string
+          description: Brand of the device
+        state:
+          $ref: '#/components/schemas/StateDto'
+    DevicePartiallyUpdateRequest:
+      type: object
+      description: Represents a request to partially update a device in the system.
+      example:
+        state: in-use
       properties:
         name:
           type: string
