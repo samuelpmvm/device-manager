@@ -31,4 +31,8 @@ public class Device {
 
     @Column(nullable = false, updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private OffsetDateTime creationTime;
+
+    public boolean isInUse() {
+        return StateDto.IN_USE == state;
+    }
 }

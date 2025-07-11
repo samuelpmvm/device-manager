@@ -1,6 +1,6 @@
 package smarcos.implementation.controllers;
 
-import com.model.device.DeviceDto;
+import com.model.device.DeviceCreationRequest;
 import com.model.device.StateDto;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -32,7 +32,7 @@ class DeviceControllerTest {
 
     @Test
     void createDeviceSuccess() throws Exception {
-        var deviceDto = createDeviceDto();
+        var deviceDto = new DeviceCreationRequest("Device Name", "Device Brand", StateDto.AVAILABLE);
         var device = DeviceMapper.toEntity(deviceDto);
         var time = OffsetDateTime.now();
         device.setId(UUID.fromString(ID));
@@ -57,8 +57,31 @@ class DeviceControllerTest {
                 .andExpect(jsonPath("$.creationTime").value(device.getCreationTime().toString()));
     }
 
-    private DeviceDto createDeviceDto() {
-        return new DeviceDto("Device Name", "Device Brand", StateDto.AVAILABLE);
-    }
+    @Test
+    void updateDeviceSuccess() throws Exception {
+        var deviceCreationRequest = new DeviceCreationRequest("Device Name", "Device Brand", StateDto.AVAILABLE);
+        var device = DeviceMapper.toEntity(deviceCreationRequest);
+        var time = OffsetDateTime.now();
+        var id = UUID.fromString(ID);
+        device.setId(id);
+        device.setCreationTime(time);
+        Mockito.when(deviceService.updateDevice(id, deviceCreationRequest)).thenReturn(device);
 
+        var request = MockMvcRequestBuilders
+                .put("/api/v1/devices/" + ID)
+                .contentType(DeviceController.APPLICATION_DEVICE_REQUEST_V_1_JSON)
+                .content("""
+                        {
+                          "name": "Device Name",
+                          "brand": "Device Brand",
+                          "state": "available"
+                        }""");
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(device.getId().toString()))
+                .andExpect(jsonPath("$.name").value(device.getName()))
+                .andExpect(jsonPath("$.brand").value(device.getBrand()))
+                .andExpect(jsonPath("$.state").value(device.getState().getValue()))
+                .andExpect(jsonPath("$.creationTime").value(device.getCreationTime().toString()));
+    }
 }

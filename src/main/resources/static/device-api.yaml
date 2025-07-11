@@ -11,28 +11,76 @@ paths:
         - DeviceController
       summary: Create a new device
       description: Endpoint to create a new device in the system. 
-                  Accepts a `DeviceDto` object in the request body and returns the created device.
+                  Accepts a `DeviceCreationRequest` object in the request body and returns the created device.
       operationId: createDevice
       requestBody:
         required: true
         content:
           application/device-request-v1+json:
             schema:
-              $ref: '#/components/schemas/DeviceDto'
+              $ref: '#/components/schemas/DeviceCreationRequest'
       responses:
         '201':
           description: Device created successfully
           content:
             application/device-response-v1+json:
-              example:
-                id: "123e4567-e89b-12d3-a456-426614174000"
-                name: "Device Name"
-                state: available
-                createdAt: "2023-10-01T12:00:00Z"
               schema:
-                $ref: '#/components/schemas/DeviceDto'
+                $ref: '#/components/schemas/DeviceResponse'
         '400':
           description: Bad request, invalid input data
+          content:
+            application/device-error-v1+json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/device-error-v1+json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+  /devices/{id}:
+    put:
+      tags:
+        - DeviceController
+      summary: Update an existing device
+      description: Endpoint to update an existing device in the system. 
+                  Accepts a `DeviceFullUpdateRequest` object in the request body and returns the updated device.
+      operationId: updateDevice
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique identifier of the device to be updated
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/device-request-v1+json:
+            schema:
+              $ref: '#/components/schemas/DeviceCreationRequest'
+      responses:
+        '200':
+          description: Device updated successfully
+          content:
+            application/device-response-v1+json:
+              schema:
+                $ref: '#/components/schemas/DeviceResponse'
+        '400':
+          description: Bad request, invalid input data
+          content:
+            application/device-error-v1+json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: Device not found
+          content:
+            application/device-error-v1+json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '409':
+          description: Device in use, cannot update
           content:
             application/device-error-v1+json:
               schema:
@@ -56,9 +104,9 @@ components:
         - available
         - in-use
         - inactive
-    DeviceDto:
+    DeviceCreationRequest:
       type: object
-      description: Representation of a device in the system.
+      description: Represents a request to create/update a new device in the system.
       example:
         name: "Device Name"
         brand: "Device Brand"
@@ -67,6 +115,30 @@ components:
         - name
         - brand
         - state
+      properties:
+        name:
+          type: string
+          description: Name of the device
+        brand:
+          type: string
+          description: Brand of the device
+        state:
+          $ref: '#/components/schemas/StateDto'
+    DeviceResponse:
+      type: object
+      description: Representation of a device in the system.
+      example:
+        id: "123e4567-e89b-12d3-a456-426614174000"
+        name: "Device Name"
+        brand: "Device Brand"
+        state: available
+        creationTime: "2023-10-01T12:00:00Z"
+      required:
+        - id
+        - name
+        - brand
+        - state
+        - creationTime
       properties:
         id:
           type: string

@@ -1,29 +1,28 @@
 package smarcos.implementation.mapper;
 
-import com.model.device.DeviceDto;
+import com.model.device.DeviceCreationRequest;
+import com.model.device.DeviceResponse;
 import smarcos.implementation.entities.Device;
 
 public final class DeviceMapper {
 
     private DeviceMapper() {}
 
-    public static DeviceDto toDto(Device device) {
-        DeviceDto deviceDto = new DeviceDto();
-        deviceDto.setId(device.getId());
-        deviceDto.setName(device.getName());
-        deviceDto.setBrand(device.getBrand());
-        deviceDto.setState(device.getState());
-        deviceDto.setCreationTime(device.getCreationTime());
-        return deviceDto;
+    public static DeviceResponse toDeviceResponse(Device device) {
+        DeviceResponse deviceResponse = new DeviceResponse();
+        deviceResponse.setId(device.getId());
+        deviceResponse.setName(device.getName());
+        deviceResponse.setBrand(device.getBrand());
+        deviceResponse.setState(device.getState());
+        deviceResponse.setCreationTime(device.getCreationTime());
+        return deviceResponse;
     }
 
-    public static Device toEntity(DeviceDto deviceDto) {
+    public static Device toEntity(DeviceCreationRequest deviceCreationRequest) {
         Device device = new Device();
-        device.setId(deviceDto.getId());
-        device.setName(deviceDto.getName());
-        device.setBrand(deviceDto.getBrand());
-        device.setState(deviceDto.getState());
-        device.setCreationTime(deviceDto.getCreationTime());
+        device.setName(deviceCreationRequest.getName());
+        device.setBrand(deviceCreationRequest.getBrand());
+        device.setState(deviceCreationRequest.getState());
         return device;
     }
 }

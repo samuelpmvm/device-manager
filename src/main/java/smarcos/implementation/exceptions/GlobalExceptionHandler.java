@@ -63,4 +63,18 @@ public class GlobalExceptionHandler {
                         "Resource not found. For more details check the documentation",
                         exception.getMessage()));
     }
+
+    @ExceptionHandler(DeviceInUseException.class)
+    public ResponseEntity<ApiErrorResponse> handleDeviceInUseException(DeviceInUseException exception) {
+        LOGGER.error("Device in use exception found: {}", exception.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ApiErrorResponse(ApiErrorCode.DEVICE_IN_USE, "Device is currently in use and cannot be modified or deleted", exception.getMessage()));
+    }
+
+    @ExceptionHandler(DeviceNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleDeviceNotFoundException(DeviceNotFoundException exception) {
+        LOGGER.error("Device not found exception found: {}", exception.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiErrorResponse(ApiErrorCode.DEVICE_NOT_FOUND, "Device not found", exception.getMessage()));
+    }
 }

@@ -1,13 +1,16 @@
 package smarcos.implementation.controllers;
 
 import com.api.device.DeviceControllerApi;
-import com.model.device.DeviceDto;
+import com.model.device.DeviceCreationRequest;
+import com.model.device.DeviceResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import smarcos.implementation.mapper.DeviceMapper;
 import smarcos.implementation.services.DeviceService;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -21,8 +24,14 @@ public class DeviceController implements DeviceControllerApi {
     }
 
     @Override
-    public ResponseEntity<DeviceDto> createDevice(DeviceDto deviceDto) {
-        var device = deviceService.createDevice(deviceDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(DeviceMapper.toDto(device));
+    public ResponseEntity<DeviceResponse> createDevice(DeviceCreationRequest deviceCreationRequest) {
+        var device = deviceService.createDevice(deviceCreationRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(DeviceMapper.toDeviceResponse(device));
+    }
+
+    @Override
+    public ResponseEntity<DeviceResponse> updateDevice(UUID id, DeviceCreationRequest deviceCreationRequest) {
+        var device = deviceService.updateDevice(id, deviceCreationRequest);
+        return ResponseEntity.ok(DeviceMapper.toDeviceResponse(device));
     }
 }
