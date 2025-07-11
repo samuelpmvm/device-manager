@@ -12,18 +12,3 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
-  device-app:
-    image: device-app:1.0.0
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: device-app:1.0.0
-    environment:
-      DB_NAME: device_db
-      DB_HOST: postgres
-      DB_USER: device
-      DB_PASSWORD: device
-    depends_on:
-      postgres:
-        condition: service_healthy
