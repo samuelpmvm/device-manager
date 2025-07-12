@@ -166,4 +166,12 @@ class DeviceControllerTest {
                 .andExpect(jsonPath("$.items.[0].state").value(device.getState().getValue()))
                 .andExpect(jsonPath("$.items.[0].creationTime").value(startsWith(device.getCreationTime().toString().substring(0, 23))));
     }
+
+    @Test
+    void deleteDeviceSuccess() throws Exception {
+        var request = MockMvcRequestBuilders
+                .delete("/api/v1/devices/" + ID);
+        mockMvc.perform(request)
+                .andExpect(status().isNoContent());
+    }
 }
