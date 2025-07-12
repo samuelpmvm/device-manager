@@ -2,6 +2,10 @@
 
 [![License](https://img.shields.io/github/license/samuelpmvm/device-manager)](LICENSE)
 
+[![Java CI with Maven](https://github.com/samuelpmvm/device-manager/actions/workflows/maven.yml/badge.svg)](https://github.com/samuelpmvm/device-manager/actions/workflows/maven.yml)
+
+[![CI - Docker build and Docker Compose Test](https://github.com/samuelpmvm/device-manager/actions/workflows/docker.yml/badge.svg)](https://github.com/samuelpmvm/device-manager/actions/workflows/docker.yml)
+
 
 ## Overview
 Device Manager Application is a REST API built with Spring Boot to manage device resources. 
