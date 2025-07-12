@@ -61,7 +61,7 @@ http://localhost:8080/device-manager/swagger-ui/index.html
 - `GET /devices`: Fetch all devices.
 - `GET /devices/brand/{brand}`: Fetch devices by brand. 🚧
 - `GET /devices/state/{state}`: Fetch devices by state. 🚧
-- `DELETE /devices/{id}`: Delete a single device. 🚧
+- `DELETE /devices/{id}`: Delete a single device.
 
 ## 🧪 Running Tests
 

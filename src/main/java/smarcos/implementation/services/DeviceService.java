@@ -83,6 +83,19 @@ public class DeviceService {
         return deviceRepository.findAll();
     }
 
+    @Transactional
+    public void deleteDevice(UUID id) {
+        LOGGER.info("Deleting device with ID: {}", id);
+        var existingDevice = deviceRepository.findById(id)
+                .orElseThrow(() -> new DeviceNotFoundException(DEVICE_NOT_FOUND_WITH_ID + id));
+
+        if (existingDevice.isInUse()) {
+            LOGGER.error("Attempted to delete a device that is currently in use: {}", existingDevice);
+            throw new DeviceInUseException("Cannot delete a device that is currently in use.");
+        }
+        deviceRepository.delete(existingDevice);
+    }
+
     private boolean isToUpdateNameOrBrand(DevicePartiallyUpdateRequest devicePartiallyUpdateRequest) {
         return devicePartiallyUpdateRequest.getBrand() != null || devicePartiallyUpdateRequest.getName() != null;
     }

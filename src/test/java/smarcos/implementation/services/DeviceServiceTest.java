@@ -167,4 +167,30 @@ class DeviceServiceTest {
         assertEquals(DEVICE_BRAND, existingDevice.getBrand());
         assertEquals(StateDto.AVAILABLE, existingDevice.getState());
     }
+
+    @Test
+    void deleteDeviceSuccess() {
+        var deviceCreationRequest = new DeviceCreationRequest(DEVICE_NAME, DEVICE_BRAND, StateDto.AVAILABLE);
+        var device = DeviceMapper.toEntity(deviceCreationRequest);
+        Mockito.when(deviceRepository.findById(ID)).thenReturn(Optional.of(device));
+        deviceService.deleteDevice(ID);
+
+        Mockito.verify(deviceRepository, Mockito.times(1)).delete(device);
+    }
+
+    @Test
+    void deleteDeviceInUseFails() {
+        var deviceCreationRequest = new DeviceCreationRequest(DEVICE_NAME, DEVICE_BRAND, StateDto.IN_USE);
+        var device = DeviceMapper.toEntity(deviceCreationRequest);
+        Mockito.when(deviceRepository.findById(ID)).thenReturn(Optional.of(device));
+
+        assertThrows(DeviceInUseException.class, () -> deviceService.deleteDevice(ID));
+    }
+
+    @Test
+    void deleteDeviceNotFoundFails() {
+        Mockito.when(deviceRepository.findById(ID)).thenReturn(Optional.empty());
+
+        assertThrows(DeviceNotFoundException.class, () -> deviceService.deleteDevice(ID));
+    }
 }

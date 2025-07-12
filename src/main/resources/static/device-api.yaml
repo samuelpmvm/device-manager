@@ -193,6 +193,47 @@ paths:
             application/device-error-v1+json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponse'
+    delete:
+      tags:
+        - DeviceController
+      summary: Delete a device
+      description: Endpoint to delete a device in the system.
+      operationId: deleteDevice
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique identifier of the device to be deleted
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: deleted device with id
+        '400':
+          description: Bad request, invalid input data
+          content:
+            application/device-error-v1+json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: Device not found
+          content:
+            application/device-error-v1+json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '409':
+          description: Device in use, cannot be deleted
+          content:
+            application/device-error-v1+json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/device-error-v1+json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
 components:
   schemas:
     StateDto:

@@ -11,10 +11,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 import smarcos.implementation.PostgresIntegrationTest;
+import smarcos.implementation.exceptions.DeviceNotFoundException;
 import smarcos.implementation.repository.DeviceRepository;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
@@ -107,5 +107,19 @@ class DeviceServiceIntegrationTest extends PostgresIntegrationTest {
 
         var existingDevices = deviceService.getAllDevices();
         assertEquals(2, existingDevices.size());
+    }
+
+    @Test
+    void deleteDeviceSuccess() {
+        var deviceCreationRequest = new DeviceCreationRequest(DEVICE_NAME, DEVICE_BRAND, StateDto.AVAILABLE);
+        var createdDevice = deviceService.createDevice(deviceCreationRequest);
+        assertNotNull(createdDevice);
+        var id = createdDevice.getId();
+        assertNotNull(id);
+
+        var existingDevice = deviceService.getDeviceById(id);
+        assertNotNull(existingDevice);
+        deviceService.deleteDevice(existingDevice.getId());
+        assertThrows(DeviceNotFoundException.class, () -> deviceService.getDeviceById(id));
     }
 }
