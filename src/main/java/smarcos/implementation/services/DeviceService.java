@@ -1,6 +1,7 @@
 package smarcos.implementation.services;
 
 import com.model.device.DeviceCreationRequest;
+import com.model.device.DevicePartiallyUpdateRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -25,15 +26,16 @@ public class DeviceService {
         LOGGER.info("DeviceService initialized with DeviceRepository");
     }
 
-    public Device createDevice(DeviceCreationRequest deviceDto) {
-        var device = DeviceMapper.toEntity(deviceDto);
+    @Transactional
+    public Device createDevice(DeviceCreationRequest deviceCreationRequest) {
+        var device = DeviceMapper.toEntity(deviceCreationRequest);
         device.setCreationTime(OffsetDateTime.now());
         LOGGER.info("Creating device: {}", device);
         return deviceRepository.save(device);
     }
 
     @Transactional
-    public Device updateDevice(UUID id, DeviceCreationRequest deviceDto) {
+    public Device updateDevice(UUID id, DeviceCreationRequest deviceCreationRequest) {
         LOGGER.info("Updating device with ID: {}", id);
         var existingDevice = deviceRepository.findById(id)
                 .orElseThrow(() -> new DeviceNotFoundException("Device not found with ID: " + id));
@@ -42,12 +44,38 @@ public class DeviceService {
             LOGGER.error("Attempted to update a device that is currently in use: {}", existingDevice);
             throw new DeviceInUseException("Cannot update a device that is currently in use.");
         }
-        existingDevice.setName(deviceDto.getName());
-        existingDevice.setBrand(deviceDto.getBrand());
-        existingDevice.setState(deviceDto.getState());
+        existingDevice.setName(deviceCreationRequest.getName());
+        existingDevice.setBrand(deviceCreationRequest.getBrand());
+        existingDevice.setState(deviceCreationRequest.getState());
 
         LOGGER.info("Updated device: {}", existingDevice);
         return deviceRepository.save(existingDevice);
+    }
+
+    @Transactional
+    public Device partiallyUpdateDevice(UUID id, DevicePartiallyUpdateRequest devicePartiallyUpdateRequest) {
+        LOGGER.info("Partially updating device with ID: {}", id);
+        var existingDevice = deviceRepository.findById(id)
+                .orElseThrow(() -> new DeviceNotFoundException("Device not found with ID: " + id));
+
+        if (existingDevice.isInUse() && isToUpdateNameOrBrand(devicePartiallyUpdateRequest)) {
+            LOGGER.error("Attempted to partially update name or brand device that is currently in use: {}", existingDevice);
+            throw new DeviceInUseException("Cannot update name or brand device that is currently in use.");
+        }
+        updateExistingDevice(existingDevice, devicePartiallyUpdateRequest);
+
+        LOGGER.info("Partially updated device: {}", existingDevice);
+        return deviceRepository.save(existingDevice);
+    }
+
+    private boolean isToUpdateNameOrBrand(DevicePartiallyUpdateRequest devicePartiallyUpdateRequest) {
+        return devicePartiallyUpdateRequest.getBrand() != null || devicePartiallyUpdateRequest.getName() != null;
+    }
+
+    private void updateExistingDevice(Device device, DevicePartiallyUpdateRequest devicePartiallyUpdateRequest){
+        if(devicePartiallyUpdateRequest.getName() != null) device.setName(devicePartiallyUpdateRequest.getName());
+        if(devicePartiallyUpdateRequest.getBrand() != null) device.setBrand(devicePartiallyUpdateRequest.getBrand());
+        if(devicePartiallyUpdateRequest.getState() != null) device.setState(devicePartiallyUpdateRequest.getState());
     }
 
 }
