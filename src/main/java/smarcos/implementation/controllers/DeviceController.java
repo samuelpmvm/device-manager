@@ -2,6 +2,7 @@ package smarcos.implementation.controllers;
 
 import com.api.device.DeviceControllerApi;
 import com.model.device.DeviceCreationRequest;
+import com.model.device.DevicePartiallyUpdateRequest;
 import com.model.device.DeviceResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,12 @@ public class DeviceController implements DeviceControllerApi {
     @Override
     public ResponseEntity<DeviceResponse> updateDevice(UUID id, DeviceCreationRequest deviceCreationRequest) {
         var device = deviceService.updateDevice(id, deviceCreationRequest);
+        return ResponseEntity.ok(DeviceMapper.toDeviceResponse(device));
+    }
+
+    @Override
+    public ResponseEntity<DeviceResponse> partiallyUpdateDevice(UUID id, DevicePartiallyUpdateRequest devicePartiallyUpdateRequest) throws Exception {
+        var device = deviceService.partiallyUpdateDevice(id, devicePartiallyUpdateRequest);
         return ResponseEntity.ok(DeviceMapper.toDeviceResponse(device));
     }
 }

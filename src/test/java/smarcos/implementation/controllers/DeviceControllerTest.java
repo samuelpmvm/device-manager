@@ -1,15 +1,18 @@
 package smarcos.implementation.controllers;
 
 import com.model.device.DeviceCreationRequest;
+import com.model.device.DevicePartiallyUpdateRequest;
 import com.model.device.StateDto;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import smarcos.implementation.entities.Device;
 import smarcos.implementation.mapper.DeviceMapper;
 import smarcos.implementation.services.DeviceService;
 
@@ -23,6 +26,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = DeviceController.class)
 @Tag("unit")
 class DeviceControllerTest {
+    public static final String DEVICE_NAME = "Device Name";
+    public static final String DEVICE_BRAND = "Device Brand";
     @Autowired
     private MockMvc mockMvc;
 
@@ -60,7 +65,7 @@ class DeviceControllerTest {
 
     @Test
     void updateDeviceSuccess() throws Exception {
-        var deviceCreationRequest = new DeviceCreationRequest("Device Name", "Device Brand", StateDto.AVAILABLE);
+        var deviceCreationRequest = new DeviceCreationRequest(DEVICE_NAME, DEVICE_BRAND, StateDto.AVAILABLE);
         var device = DeviceMapper.toEntity(deviceCreationRequest);
         var time = OffsetDateTime.now();
         var id = UUID.fromString(ID);
@@ -76,6 +81,34 @@ class DeviceControllerTest {
                           "name": "Device Name",
                           "brand": "Device Brand",
                           "state": "available"
+                        }""");
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(device.getId().toString()))
+                .andExpect(jsonPath("$.name").value(device.getName()))
+                .andExpect(jsonPath("$.brand").value(device.getBrand()))
+                .andExpect(jsonPath("$.state").value(device.getState().getValue()))
+                .andExpect(jsonPath("$.creationTime").value(startsWith(device.getCreationTime().toString().substring(0, 23))));
+    }
+
+    @Test
+    void partiallyUpdateDeviceSuccess() throws Exception {
+        var device = new Device();
+        var time = OffsetDateTime.now();
+        var id = UUID.fromString(ID);
+        device.setId(id);
+        device.setName(DEVICE_NAME);
+        device.setState(StateDto.AVAILABLE);
+        device.setBrand(DEVICE_BRAND);
+        device.setCreationTime(time);
+        Mockito.when(deviceService.partiallyUpdateDevice(ArgumentMatchers.any(UUID.class), ArgumentMatchers.any(DevicePartiallyUpdateRequest.class))).thenReturn(device);
+
+        var request = MockMvcRequestBuilders
+                .patch("/api/v1/devices/" + ID)
+                .contentType(DeviceController.APPLICATION_DEVICE_REQUEST_V_1_JSON)
+                .content("""
+                        {
+                          "name": "Device Name"
                         }""");
         mockMvc.perform(request)
                 .andExpect(status().isOk())

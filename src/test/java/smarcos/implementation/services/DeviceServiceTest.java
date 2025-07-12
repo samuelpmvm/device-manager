@@ -1,6 +1,7 @@
 package smarcos.implementation.services;
 
 import com.model.device.DeviceCreationRequest;
+import com.model.device.DevicePartiallyUpdateRequest;
 import com.model.device.StateDto;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -11,14 +12,15 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import smarcos.implementation.entities.Device;
+import smarcos.implementation.exceptions.DeviceInUseException;
+import smarcos.implementation.exceptions.DeviceNotFoundException;
 import smarcos.implementation.mapper.DeviceMapper;
 import smarcos.implementation.repository.DeviceRepository;
 
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 @Tag("unit")
@@ -60,5 +62,82 @@ class DeviceServiceTest {
         assertEquals(DEVICE_NAME, updateDevice.getName());
         assertEquals(DEVICE_BRAND, updateDevice.getBrand());
         assertEquals(StateDto.AVAILABLE, updateDevice.getState());
+    }
+
+    @Test
+    void updateDeviceInUseFails() {
+        var deviceCreationRequest = new DeviceCreationRequest(DEVICE_NAME, DEVICE_BRAND, StateDto.IN_USE);
+        var device = DeviceMapper.toEntity(deviceCreationRequest);
+        var id = UUID.fromString(ID);
+        Mockito.when(deviceRepository.findById(id)).thenReturn(Optional.of(device));
+        deviceCreationRequest.setName("Update");
+
+        assertThrows(DeviceInUseException.class, () -> deviceService.updateDevice(id, deviceCreationRequest));
+    }
+
+    @Test
+    void updateDeviceNotFoundFails() {
+        var deviceCreationRequest = new DeviceCreationRequest(DEVICE_NAME, DEVICE_BRAND, StateDto.AVAILABLE);
+        var id = UUID.fromString(ID);
+        Mockito.when(deviceRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(DeviceNotFoundException.class, () -> deviceService.updateDevice(id, deviceCreationRequest));
+    }
+
+    @Test
+    void partiallyUpdateDeviceSuccess() {
+        var devicePartiallyUpdateRequest = new DevicePartiallyUpdateRequest();
+        devicePartiallyUpdateRequest.setName(DEVICE_NAME);
+        var device = new Device();
+        device.setName(DEVICE_NAME);
+        var id = UUID.fromString(ID);
+        Mockito.when(deviceRepository.findById(id)).thenReturn(Optional.of(device));
+        Mockito.when(deviceRepository.save(ArgumentMatchers.any(Device.class))).thenReturn(device);
+
+        var partiallyUpdateDevice = deviceService.partiallyUpdateDevice(id, devicePartiallyUpdateRequest);
+        assertNotNull(partiallyUpdateDevice);
+        assertEquals(DEVICE_NAME, partiallyUpdateDevice.getName());
+    }
+
+    @Test
+    void partiallyUpdateDeviceNotFoundFails() {
+        var devicePartiallyUpdateRequest = new DevicePartiallyUpdateRequest();
+        devicePartiallyUpdateRequest.setName(DEVICE_NAME);
+        var id = UUID.fromString(ID);
+        Mockito.when(deviceRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(DeviceNotFoundException.class, () -> deviceService.partiallyUpdateDevice(id, devicePartiallyUpdateRequest));
+    }
+
+    @Test
+    void updateNameOrBrandOfDeviceInUseFails() {
+        var devicePartiallyUpdateRequest = new DevicePartiallyUpdateRequest();
+        devicePartiallyUpdateRequest.setName("Name");
+        var device = new Device();
+        device.setName(DEVICE_NAME);
+        device.setState(StateDto.IN_USE);
+        var id = UUID.fromString(ID);
+        Mockito.when(deviceRepository.findById(id)).thenReturn(Optional.of(device));
+        assertThrows(DeviceInUseException.class, () -> deviceService.partiallyUpdateDevice(id, devicePartiallyUpdateRequest));
+
+        devicePartiallyUpdateRequest.setName(null);
+        devicePartiallyUpdateRequest.setBrand("Brand");
+
+        assertThrows(DeviceInUseException.class, () -> deviceService.partiallyUpdateDevice(id, devicePartiallyUpdateRequest));
+    }
+
+    @Test
+    void updateStateOfDeviceInUseSuccess() {
+        var devicePartiallyUpdateRequest = new DevicePartiallyUpdateRequest();
+        devicePartiallyUpdateRequest.setState(StateDto.INACTIVE);
+        var device = new Device();
+        device.setState(StateDto.IN_USE);
+        var id = UUID.fromString(ID);
+        Mockito.when(deviceRepository.findById(id)).thenReturn(Optional.of(device));
+        Mockito.when(deviceRepository.save(ArgumentMatchers.any(Device.class))).thenReturn(device);
+
+        var partiallyUpdateDevice = deviceService.partiallyUpdateDevice(id, devicePartiallyUpdateRequest);
+        assertNotNull(partiallyUpdateDevice);
+        assertEquals(StateDto.INACTIVE, partiallyUpdateDevice.getState());
     }
 }

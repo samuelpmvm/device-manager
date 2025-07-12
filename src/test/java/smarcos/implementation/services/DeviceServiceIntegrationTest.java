@@ -1,6 +1,7 @@
 package smarcos.implementation.services;
 
 import com.model.device.DeviceCreationRequest;
+import com.model.device.DevicePartiallyUpdateRequest;
 import com.model.device.StateDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -62,11 +63,24 @@ class DeviceServiceIntegrationTest extends PostgresIntegrationTest {
         assertEquals(createdDevice.getId(), updatedDevice.getId());
         assertEquals(UPDATED_DEVICE_NAME, updatedDevice.getName());
         assertEquals(UPDATED_BRAND, updatedDevice.getBrand());
-        assertEquals(StateDto.IN_USE, createdDevice.getState());
+        assertEquals(StateDto.IN_USE, updatedDevice.getState());
         assertEquals(createdDevice.getCreationTime(), updatedDevice.getCreationTime());
     }
 
+    @Test
+    void partiallyUpdateDeviceSuccess() {
+        var deviceCreationRequest = new DeviceCreationRequest(DEVICE_NAME, DEVICE_BRAND, StateDto.AVAILABLE);
+        var createdDevice = deviceService.createDevice(deviceCreationRequest);
+        assertNotNull(createdDevice);
+        assertNotNull(createdDevice.getId());
 
-
-
+        var devicePartiallyUpdateRequest = new DevicePartiallyUpdateRequest();
+        devicePartiallyUpdateRequest.setName(UPDATED_DEVICE_NAME);
+        var partiallyUpdateDevice = deviceService.partiallyUpdateDevice(createdDevice.getId(), devicePartiallyUpdateRequest);
+        assertEquals(createdDevice.getId(), partiallyUpdateDevice.getId());
+        assertEquals(UPDATED_DEVICE_NAME, partiallyUpdateDevice.getName());
+        assertEquals(createdDevice.getBrand(), partiallyUpdateDevice.getBrand());
+        assertEquals(createdDevice.getState(), partiallyUpdateDevice.getState());
+        assertEquals(createdDevice.getCreationTime(), partiallyUpdateDevice.getCreationTime());
+    }
 }
