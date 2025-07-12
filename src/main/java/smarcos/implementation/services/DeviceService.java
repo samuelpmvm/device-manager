@@ -18,6 +18,7 @@ import java.util.UUID;
 @Service
 public class DeviceService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DeviceService.class);
+    private static final String DEVICE_NOT_FOUND_WITH_ID = "Device not found with ID: ";
 
     private final DeviceRepository deviceRepository;
 
@@ -38,7 +39,7 @@ public class DeviceService {
     public Device updateDevice(UUID id, DeviceCreationRequest deviceCreationRequest) {
         LOGGER.info("Updating device with ID: {}", id);
         var existingDevice = deviceRepository.findById(id)
-                .orElseThrow(() -> new DeviceNotFoundException("Device not found with ID: " + id));
+                .orElseThrow(() -> new DeviceNotFoundException(DEVICE_NOT_FOUND_WITH_ID + id));
 
         if (existingDevice.isInUse()) {
             LOGGER.error("Attempted to update a device that is currently in use: {}", existingDevice);
@@ -56,7 +57,7 @@ public class DeviceService {
     public Device partiallyUpdateDevice(UUID id, DevicePartiallyUpdateRequest devicePartiallyUpdateRequest) {
         LOGGER.info("Partially updating device with ID: {}", id);
         var existingDevice = deviceRepository.findById(id)
-                .orElseThrow(() -> new DeviceNotFoundException("Device not found with ID: " + id));
+                .orElseThrow(() -> new DeviceNotFoundException(DEVICE_NOT_FOUND_WITH_ID + id));
 
         if (existingDevice.isInUse() && isToUpdateNameOrBrand(devicePartiallyUpdateRequest)) {
             LOGGER.error("Attempted to partially update name or brand device that is currently in use: {}", existingDevice);
@@ -66,6 +67,13 @@ public class DeviceService {
 
         LOGGER.info("Partially updated device: {}", existingDevice);
         return deviceRepository.save(existingDevice);
+    }
+
+    @Transactional(readOnly = true)
+    public Device getDeviceById(UUID id) {
+        LOGGER.info("Fetch Device with ID: {}", id);
+        return deviceRepository.findById(id)
+                .orElseThrow(() -> new DeviceNotFoundException(DEVICE_NOT_FOUND_WITH_ID + id));
     }
 
     private boolean isToUpdateNameOrBrand(DevicePartiallyUpdateRequest devicePartiallyUpdateRequest) {

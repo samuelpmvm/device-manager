@@ -83,4 +83,19 @@ class DeviceServiceIntegrationTest extends PostgresIntegrationTest {
         assertEquals(createdDevice.getState(), partiallyUpdateDevice.getState());
         assertEquals(createdDevice.getCreationTime(), partiallyUpdateDevice.getCreationTime());
     }
+
+    @Test
+    void getDeviceByIdSuccess() {
+        var deviceCreationRequest = new DeviceCreationRequest(DEVICE_NAME, DEVICE_BRAND, StateDto.AVAILABLE);
+        var createdDevice = deviceService.createDevice(deviceCreationRequest);
+        assertNotNull(createdDevice);
+        assertNotNull(createdDevice.getId());
+
+        var existingDevice = deviceService.getDeviceById(createdDevice.getId());
+        assertEquals(createdDevice.getId(), existingDevice.getId());
+        assertEquals(createdDevice.getName(), existingDevice.getName());
+        assertEquals(createdDevice.getBrand(), existingDevice.getBrand());
+        assertEquals(createdDevice.getState(), existingDevice.getState());
+        assertEquals(createdDevice.getCreationTime(), existingDevice.getCreationTime());
+    }
 }

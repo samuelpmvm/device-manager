@@ -41,4 +41,10 @@ public class DeviceController implements DeviceControllerApi {
         var device = deviceService.partiallyUpdateDevice(id, devicePartiallyUpdateRequest);
         return ResponseEntity.ok(DeviceMapper.toDeviceResponse(device));
     }
+
+    @Override
+    public ResponseEntity<DeviceResponse> getDeviceById(UUID id) throws Exception {
+        var device = deviceService.getDeviceById(id);
+        return ResponseEntity.ok(DeviceMapper.toDeviceResponse(device));
+    }
 }

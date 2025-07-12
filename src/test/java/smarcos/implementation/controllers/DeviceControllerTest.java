@@ -118,4 +118,27 @@ class DeviceControllerTest {
                 .andExpect(jsonPath("$.state").value(device.getState().getValue()))
                 .andExpect(jsonPath("$.creationTime").value(startsWith(device.getCreationTime().toString().substring(0, 23))));
     }
+
+    @Test
+    void getDeviceByIdSuccess() throws Exception {
+        var device = new Device();
+        var time = OffsetDateTime.now();
+        var id = UUID.fromString(ID);
+        device.setId(id);
+        device.setName(DEVICE_NAME);
+        device.setState(StateDto.AVAILABLE);
+        device.setBrand(DEVICE_BRAND);
+        device.setCreationTime(time);
+        Mockito.when(deviceService.getDeviceById(ArgumentMatchers.any(UUID.class))).thenReturn(device);
+
+        var request = MockMvcRequestBuilders
+                .get("/api/v1/devices/" + ID);
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(device.getId().toString()))
+                .andExpect(jsonPath("$.name").value(device.getName()))
+                .andExpect(jsonPath("$.brand").value(device.getBrand()))
+                .andExpect(jsonPath("$.state").value(device.getState().getValue()))
+                .andExpect(jsonPath("$.creationTime").value(startsWith(device.getCreationTime().toString().substring(0, 23))));
+    }
 }
