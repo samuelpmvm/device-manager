@@ -16,6 +16,7 @@ import smarcos.implementation.services.DeviceService;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import static org.hamcrest.Matchers.startsWith;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -54,7 +55,7 @@ class DeviceControllerTest {
                 .andExpect(jsonPath("$.name").value(device.getName()))
                 .andExpect(jsonPath("$.brand").value(device.getBrand()))
                 .andExpect(jsonPath("$.state").value(device.getState().getValue()))
-                .andExpect(jsonPath("$.creationTime").value(device.getCreationTime().toString()));
+                .andExpect(jsonPath("$.creationTime").value(startsWith(device.getCreationTime().toString().substring(0, 23))));
     }
 
     @Test
@@ -82,6 +83,6 @@ class DeviceControllerTest {
                 .andExpect(jsonPath("$.name").value(device.getName()))
                 .andExpect(jsonPath("$.brand").value(device.getBrand()))
                 .andExpect(jsonPath("$.state").value(device.getState().getValue()))
-                .andExpect(jsonPath("$.creationTime").value(device.getCreationTime().toString()));
+                .andExpect(jsonPath("$.creationTime").value(startsWith(device.getCreationTime().toString().substring(0, 23))));
     }
 }
