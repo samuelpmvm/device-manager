@@ -31,3 +31,8 @@ jobs:
       run: mvn -B package --file pom.xml
     - name: Run tests and generate coverage report
       run: mvn clean verify
+    - name: Generate Coverage Badge
+      uses: cicirello/jacoco-badge-generator@v1
+      with:
+        jacoco-csv-path: target/jacoco.csv
+        output-dir: .github/badges
