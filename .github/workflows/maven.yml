@@ -32,7 +32,7 @@ jobs:
     - name: Run tests and generate coverage report
       run: mvn clean verify
     - name: Generate Coverage Badge
-      uses: cicirello/jacoco-badge-generator@v1
+      uses: cicirello/jacoco-badge-generator@v2.11.0
       with:
         jacoco-csv-path: target/jacoco.csv
         output-dir: .github/badges
