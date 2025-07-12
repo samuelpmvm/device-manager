@@ -2,6 +2,7 @@
 
 [![License](https://img.shields.io/github/license/samuelpmvm/device-manager)](LICENSE)
 
+
 ## Overview
 Device Manager Application is a REST API built with Spring Boot to manage device resources. 
 It provides endpoints to perform CRUD operations on devices.
@@ -49,9 +50,7 @@ It provides endpoints to perform CRUD operations on devices.
 
 All endpoints are prefixed with: /device-manager/api/v1
 
-```
-http://localhost:8080/device-manager/swagger-ui/index.html
-```
+[Swagger UI Documentation](http://localhost:8080/device-manager/swagger-ui/index.html)
 
 📱 Devices
 - `POST /devices`: Create a new device.
