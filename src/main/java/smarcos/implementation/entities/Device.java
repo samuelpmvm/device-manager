@@ -1,6 +1,6 @@
 package smarcos.implementation.entities;
 
-import com.model.device.StateDto;
+import com.model.device.DeviceState;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,12 +27,12 @@ public class Device {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private StateDto state;
+    private DeviceState state;
 
     @Column(nullable = false, updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private OffsetDateTime creationTime;
 
     public boolean isInUse() {
-        return StateDto.IN_USE == state;
+        return DeviceState.IN_USE == state;
     }
 }

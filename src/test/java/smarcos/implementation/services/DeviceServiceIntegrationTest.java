@@ -2,7 +2,7 @@ package smarcos.implementation.services;
 
 import com.model.device.DeviceCreationRequest;
 import com.model.device.DevicePartiallyUpdateRequest;
-import com.model.device.StateDto;
+import com.model.device.DeviceState;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -41,35 +41,35 @@ class DeviceServiceIntegrationTest extends PostgresIntegrationTest {
 
      @Test
      void createDeviceSuccess() {
-         var deviceCreationRequest = new DeviceCreationRequest(DEVICE_NAME, DEVICE_BRAND, StateDto.AVAILABLE);
+         var deviceCreationRequest = new DeviceCreationRequest(DEVICE_NAME, DEVICE_BRAND, DeviceState.AVAILABLE);
             var createdDevice = deviceService.createDevice(deviceCreationRequest);
             assertNotNull(createdDevice);
             assertNotNull(createdDevice.getId());
             assertEquals(DEVICE_NAME, createdDevice.getName());
             assertEquals(DEVICE_BRAND, createdDevice.getBrand());
-            assertEquals(StateDto.AVAILABLE, createdDevice.getState());
+            assertEquals(DeviceState.AVAILABLE, createdDevice.getState());
             assertNotNull(createdDevice.getCreationTime());
      }
 
     @Test
     void updateDeviceSuccess() {
-        var deviceCreationRequest = new DeviceCreationRequest(DEVICE_NAME, DEVICE_BRAND, StateDto.AVAILABLE);
+        var deviceCreationRequest = new DeviceCreationRequest(DEVICE_NAME, DEVICE_BRAND, DeviceState.AVAILABLE);
         var createdDevice = deviceService.createDevice(deviceCreationRequest);
         assertNotNull(createdDevice);
         assertNotNull(createdDevice.getId());
 
-        var updatedDeviceRequest = new DeviceCreationRequest(UPDATED_DEVICE_NAME, UPDATED_BRAND, StateDto.IN_USE);
+        var updatedDeviceRequest = new DeviceCreationRequest(UPDATED_DEVICE_NAME, UPDATED_BRAND, DeviceState.IN_USE);
         var updatedDevice = deviceService.updateDevice(createdDevice.getId(), updatedDeviceRequest);
         assertEquals(createdDevice.getId(), updatedDevice.getId());
         assertEquals(UPDATED_DEVICE_NAME, updatedDevice.getName());
         assertEquals(UPDATED_BRAND, updatedDevice.getBrand());
-        assertEquals(StateDto.IN_USE, updatedDevice.getState());
+        assertEquals(DeviceState.IN_USE, updatedDevice.getState());
         assertEquals(createdDevice.getCreationTime(), updatedDevice.getCreationTime());
     }
 
     @Test
     void partiallyUpdateDeviceSuccess() {
-        var deviceCreationRequest = new DeviceCreationRequest(DEVICE_NAME, DEVICE_BRAND, StateDto.AVAILABLE);
+        var deviceCreationRequest = new DeviceCreationRequest(DEVICE_NAME, DEVICE_BRAND, DeviceState.AVAILABLE);
         var createdDevice = deviceService.createDevice(deviceCreationRequest);
         assertNotNull(createdDevice);
         assertNotNull(createdDevice.getId());
@@ -86,7 +86,7 @@ class DeviceServiceIntegrationTest extends PostgresIntegrationTest {
 
     @Test
     void getDeviceByIdSuccess() {
-        var deviceCreationRequest = new DeviceCreationRequest(DEVICE_NAME, DEVICE_BRAND, StateDto.AVAILABLE);
+        var deviceCreationRequest = new DeviceCreationRequest(DEVICE_NAME, DEVICE_BRAND, DeviceState.AVAILABLE);
         var createdDevice = deviceService.createDevice(deviceCreationRequest);
         assertNotNull(createdDevice);
         assertNotNull(createdDevice.getId());
@@ -101,17 +101,17 @@ class DeviceServiceIntegrationTest extends PostgresIntegrationTest {
 
     @Test
     void getAllDevices() {
-        var deviceCreationRequest = new DeviceCreationRequest(DEVICE_NAME, DEVICE_BRAND, StateDto.AVAILABLE);
+        var deviceCreationRequest = new DeviceCreationRequest(DEVICE_NAME, DEVICE_BRAND, DeviceState.AVAILABLE);
         deviceService.createDevice(deviceCreationRequest);
         deviceService.createDevice(deviceCreationRequest);
 
-        var existingDevices = deviceService.getAllDevices();
+        var existingDevices = deviceService.findDevices(null, null);
         assertEquals(2, existingDevices.size());
     }
 
     @Test
     void deleteDeviceSuccess() {
-        var deviceCreationRequest = new DeviceCreationRequest(DEVICE_NAME, DEVICE_BRAND, StateDto.AVAILABLE);
+        var deviceCreationRequest = new DeviceCreationRequest(DEVICE_NAME, DEVICE_BRAND, DeviceState.AVAILABLE);
         var createdDevice = deviceService.createDevice(deviceCreationRequest);
         assertNotNull(createdDevice);
         var id = createdDevice.getId();
@@ -121,5 +121,26 @@ class DeviceServiceIntegrationTest extends PostgresIntegrationTest {
         assertNotNull(existingDevice);
         deviceService.deleteDevice(existingDevice.getId());
         assertThrows(DeviceNotFoundException.class, () -> deviceService.getDeviceById(id));
+    }
+
+    @Test
+    void findDevicesFilteringByParameter() {
+        var deviceCreationRequest = new DeviceCreationRequest(DEVICE_NAME, DEVICE_BRAND, DeviceState.AVAILABLE);
+        deviceService.createDevice(deviceCreationRequest);
+        deviceCreationRequest.setBrand("New Brand");
+        deviceCreationRequest.setState(DeviceState.IN_USE);
+        deviceService.createDevice(deviceCreationRequest);
+
+        var existingDevices = deviceService.findDevices(null, null);
+        assertEquals(2, existingDevices.size());
+
+        var devicesByState = deviceService.findDevices(DeviceState.IN_USE, null);
+        assertEquals(1, devicesByState.size());
+
+        var devicesByBrand = deviceService.findDevices(null, DEVICE_BRAND);
+        assertEquals(1, devicesByBrand.size());
+
+        var devicesByStateAndBrand = deviceService.findDevices(DeviceState.IN_USE, DEVICE_BRAND);
+        assertEquals(0, devicesByStateAndBrand.size());
     }
 }

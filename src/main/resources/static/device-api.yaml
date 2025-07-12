@@ -41,8 +41,22 @@ paths:
     get:
       tags:
         - DeviceController
-      summary: Get all devices
-      operationId: getAllDevices
+      summary: Retrieve devices, optionally filtered by brand or state
+      description: |
+        Returns a list of all registered devices. You can filter the results by providing optional query parameters
+        such as `brand` and/or `state`. If no parameters are provided, all devices will be returned.
+      operationId: findDevices
+      parameters:
+        - name: state
+          description: state of the devices that we want to fetch
+          in: query
+          schema:
+            $ref: '#/components/schemas/DeviceState'
+        - name: brand
+          description: brand of the devices that we want to fetch
+          in: query
+          schema:
+            type: string
       responses:
         '200':
           description: Get all devices
@@ -165,6 +179,7 @@ paths:
       tags:
         - DeviceController
       summary: Get device by Id
+      description: Endpoint to find a device by id.
       operationId: getDeviceById
       parameters:
         - name: id
@@ -236,7 +251,7 @@ paths:
                 $ref: '#/components/schemas/ApiErrorResponse'
 components:
   schemas:
-    StateDto:
+    DeviceState:
       description: |
         State of Device. Possible values are:
         - `available`: The device is available for use.
@@ -266,7 +281,7 @@ components:
           type: string
           description: Brand of the device
         state:
-          $ref: '#/components/schemas/StateDto'
+          $ref: '#/components/schemas/DeviceState'
     DevicePartiallyUpdateRequest:
       type: object
       description: Represents a request to partially update a device in the system.
@@ -280,7 +295,7 @@ components:
           type: string
           description: Brand of the device
         state:
-          $ref: '#/components/schemas/StateDto'
+          $ref: '#/components/schemas/DeviceState'
     DeviceResponse:
       type: object
       description: Representation of a device in the system.
@@ -308,7 +323,7 @@ components:
           type: string
           description: Brand of the device
         state:
-          $ref: '#/components/schemas/StateDto'
+          $ref: '#/components/schemas/DeviceState'
         creationTime:
           type: string
           format: date-time

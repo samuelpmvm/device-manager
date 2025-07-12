@@ -2,7 +2,7 @@ package smarcos.implementation.controllers;
 
 import com.model.device.DeviceCreationRequest;
 import com.model.device.DevicePartiallyUpdateRequest;
-import com.model.device.StateDto;
+import com.model.device.DeviceState;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -39,7 +39,7 @@ class DeviceControllerTest {
 
     @Test
     void createDeviceSuccess() throws Exception {
-        var deviceDto = new DeviceCreationRequest("Device Name", "Device Brand", StateDto.AVAILABLE);
+        var deviceDto = new DeviceCreationRequest("Device Name", "Device Brand", DeviceState.AVAILABLE);
         var device = DeviceMapper.toEntity(deviceDto);
         var time = OffsetDateTime.now();
         device.setId(UUID.fromString(ID));
@@ -66,7 +66,7 @@ class DeviceControllerTest {
 
     @Test
     void updateDeviceSuccess() throws Exception {
-        var deviceCreationRequest = new DeviceCreationRequest(DEVICE_NAME, DEVICE_BRAND, StateDto.AVAILABLE);
+        var deviceCreationRequest = new DeviceCreationRequest(DEVICE_NAME, DEVICE_BRAND, DeviceState.AVAILABLE);
         var device = DeviceMapper.toEntity(deviceCreationRequest);
         var time = OffsetDateTime.now();
         var id = UUID.fromString(ID);
@@ -99,7 +99,7 @@ class DeviceControllerTest {
         var id = UUID.fromString(ID);
         device.setId(id);
         device.setName(DEVICE_NAME);
-        device.setState(StateDto.AVAILABLE);
+        device.setState(DeviceState.AVAILABLE);
         device.setBrand(DEVICE_BRAND);
         device.setCreationTime(time);
         Mockito.when(deviceService.partiallyUpdateDevice(ArgumentMatchers.any(UUID.class), ArgumentMatchers.any(DevicePartiallyUpdateRequest.class))).thenReturn(device);
@@ -127,7 +127,7 @@ class DeviceControllerTest {
         var id = UUID.fromString(ID);
         device.setId(id);
         device.setName(DEVICE_NAME);
-        device.setState(StateDto.AVAILABLE);
+        device.setState(DeviceState.AVAILABLE);
         device.setBrand(DEVICE_BRAND);
         device.setCreationTime(time);
         Mockito.when(deviceService.getDeviceById(ArgumentMatchers.any(UUID.class))).thenReturn(device);
@@ -150,10 +150,10 @@ class DeviceControllerTest {
         var id = UUID.fromString(ID);
         device.setId(id);
         device.setName(DEVICE_NAME);
-        device.setState(StateDto.AVAILABLE);
+        device.setState(DeviceState.AVAILABLE);
         device.setBrand(DEVICE_BRAND);
         device.setCreationTime(time);
-        Mockito.when(deviceService.getAllDevices()).thenReturn(List.of(device));
+        Mockito.when(deviceService.findDevices(null, null)).thenReturn(List.of(device));
 
         var request = MockMvcRequestBuilders
                 .get("/api/v1/devices");
@@ -173,5 +173,81 @@ class DeviceControllerTest {
                 .delete("/api/v1/devices/" + ID);
         mockMvc.perform(request)
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void findDevicesByStateSuccess() throws Exception {
+        var device = new Device();
+        var time = OffsetDateTime.now();
+        var id = UUID.fromString(ID);
+        device.setId(id);
+        device.setName(DEVICE_NAME);
+        device.setState(DeviceState.IN_USE);
+        device.setBrand(DEVICE_BRAND);
+        device.setCreationTime(time);
+        Mockito.when(deviceService.findDevices(DeviceState.IN_USE, null)).thenReturn(List.of(device));
+
+        var request = MockMvcRequestBuilders
+                .get("/api/v1/devices")
+                .param("state", DeviceState.IN_USE.getValue());
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.total").value(1))
+                .andExpect(jsonPath("$.items.[0].id").value(device.getId().toString()))
+                .andExpect(jsonPath("$.items.[0].name").value(device.getName()))
+                .andExpect(jsonPath("$.items.[0].brand").value(device.getBrand()))
+                .andExpect(jsonPath("$.items.[0].state").value(device.getState().getValue()))
+                .andExpect(jsonPath("$.items.[0].creationTime").value(startsWith(device.getCreationTime().toString().substring(0, 23))));
+    }
+
+    @Test
+    void findDevicesByBrandSuccess() throws Exception {
+        var device = new Device();
+        var time = OffsetDateTime.now();
+        var id = UUID.fromString(ID);
+        device.setId(id);
+        device.setName(DEVICE_NAME);
+        device.setState(DeviceState.IN_USE);
+        device.setBrand(DEVICE_BRAND);
+        device.setCreationTime(time);
+        Mockito.when(deviceService.findDevices(null, DEVICE_BRAND)).thenReturn(List.of(device));
+
+        var request = MockMvcRequestBuilders
+                .get("/api/v1/devices")
+                .param("brand", DEVICE_BRAND);
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.total").value(1))
+                .andExpect(jsonPath("$.items.[0].id").value(device.getId().toString()))
+                .andExpect(jsonPath("$.items.[0].name").value(device.getName()))
+                .andExpect(jsonPath("$.items.[0].brand").value(device.getBrand()))
+                .andExpect(jsonPath("$.items.[0].state").value(device.getState().getValue()))
+                .andExpect(jsonPath("$.items.[0].creationTime").value(startsWith(device.getCreationTime().toString().substring(0, 23))));
+    }
+
+    @Test
+    void findDevicesByBrandAndStateSuccess() throws Exception {
+        var device = new Device();
+        var time = OffsetDateTime.now();
+        var id = UUID.fromString(ID);
+        device.setId(id);
+        device.setName(DEVICE_NAME);
+        device.setState(DeviceState.IN_USE);
+        device.setBrand(DEVICE_BRAND);
+        device.setCreationTime(time);
+        Mockito.when(deviceService.findDevices(DeviceState.IN_USE, DEVICE_BRAND)).thenReturn(List.of(device));
+
+        var request = MockMvcRequestBuilders
+                .get("/api/v1/devices")
+                .param("brand", DEVICE_BRAND)
+                .param("state", DeviceState.IN_USE.name());
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.total").value(1))
+                .andExpect(jsonPath("$.items.[0].id").value(device.getId().toString()))
+                .andExpect(jsonPath("$.items.[0].name").value(device.getName()))
+                .andExpect(jsonPath("$.items.[0].brand").value(device.getBrand()))
+                .andExpect(jsonPath("$.items.[0].state").value(device.getState().getValue()))
+                .andExpect(jsonPath("$.items.[0].creationTime").value(startsWith(device.getCreationTime().toString().substring(0, 23))));
     }
 }

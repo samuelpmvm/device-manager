@@ -1,10 +1,7 @@
 package smarcos.implementation.controllers;
 
 import com.api.device.DeviceControllerApi;
-import com.model.device.DeviceCreationRequest;
-import com.model.device.DevicePartiallyUpdateRequest;
-import com.model.device.DeviceResponse;
-import com.model.device.DevicesResponse;
+import com.model.device.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -50,7 +47,13 @@ public class DeviceController implements DeviceControllerApi {
     }
 
     @Override
-    public ResponseEntity<DevicesResponse> getAllDevices() {
-        return ResponseEntity.ok(DeviceMapper.toDevicesResponse(deviceService.getAllDevices()));
+    public ResponseEntity<Void> deleteDevice(UUID id) {
+        deviceService.deleteDevice(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public ResponseEntity<DevicesResponse> findDevices(DeviceState state, String brand) {
+        return ResponseEntity.ok(DeviceMapper.toDevicesResponse(deviceService.findDevices(state, brand)));
     }
 }

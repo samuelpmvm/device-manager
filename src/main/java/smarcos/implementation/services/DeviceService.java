@@ -2,6 +2,7 @@ package smarcos.implementation.services;
 
 import com.model.device.DeviceCreationRequest;
 import com.model.device.DevicePartiallyUpdateRequest;
+import com.model.device.DeviceState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -78,9 +79,20 @@ public class DeviceService {
     }
 
     @Transactional(readOnly = true)
-    public List<Device> getAllDevices() {
-        LOGGER.info("Fetch all Devices.");
-        return deviceRepository.findAll();
+    public List<Device> findDevices(DeviceState state, String brand) {
+        if (state == null && brand == null) {
+            LOGGER.info("Fetch all Devices.");
+            return deviceRepository.findAll();
+        } else if (state == null) {
+            LOGGER.info("Fetch Devices by brand {}.", brand);
+            return deviceRepository.findByBrand(brand);
+        } else if (brand == null) {
+            LOGGER.info("Fetch Devices by state {}.", state);
+            return deviceRepository.findByState(state);
+        } else {
+            LOGGER.info("Fetch Devices by state {} and brand {}.", state, brand);
+            return deviceRepository.findByBrandAndState(brand, state);
+        }
     }
 
     @Transactional
