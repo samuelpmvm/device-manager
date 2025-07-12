@@ -38,6 +38,24 @@ paths:
             application/device-error-v1+json:
               schema:
                 $ref: '#/components/schemas/ApiErrorResponse'
+    get:
+      tags:
+        - DeviceController
+      summary: Get all devices
+      operationId: getAllDevices
+      responses:
+        '200':
+          description: Get all devices
+          content:
+            application/devices-response-v1+json:
+              schema:
+                $ref: '#/components/schemas/DevicesResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/device-error-v1+json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
   /devices/{id}:
     put:
       tags:
@@ -254,6 +272,19 @@ components:
           type: string
           format: date-time
           description: Timestamp when the device was created
+    DevicesResponse:
+      type: object
+      description: Representation of list of devices in the system.
+      properties:
+        total:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeviceResponse'
+      required:
+        - total
+        - items
     ApiErrorResponse:
       type: object
       description: Error response for API calls.

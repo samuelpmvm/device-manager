@@ -17,6 +17,7 @@ import smarcos.implementation.exceptions.DeviceNotFoundException;
 import smarcos.implementation.mapper.DeviceMapper;
 import smarcos.implementation.repository.DeviceRepository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -151,5 +152,19 @@ class DeviceServiceTest {
     void getDeviceByIdNotFoundFails() {
         Mockito.when(deviceRepository.findById(ID)).thenReturn(Optional.empty());
         assertThrows(DeviceNotFoundException.class, () -> deviceService.getDeviceById(ID));
+    }
+
+    @Test
+    void getAllDevices() {
+        var deviceCreationRequest = new DeviceCreationRequest(DEVICE_NAME, DEVICE_BRAND, StateDto.AVAILABLE);
+        var device = DeviceMapper.toEntity(deviceCreationRequest);
+        Mockito.when(deviceRepository.findAll()).thenReturn(List.of(device));
+
+        var existingDevices = deviceService.getAllDevices();
+        assertNotNull(existingDevices);
+        var existingDevice = existingDevices.getFirst();
+        assertEquals(DEVICE_NAME, existingDevice.getName());
+        assertEquals(DEVICE_BRAND, existingDevice.getBrand());
+        assertEquals(StateDto.AVAILABLE, existingDevice.getState());
     }
 }

@@ -13,6 +13,7 @@ import smarcos.implementation.mapper.DeviceMapper;
 import smarcos.implementation.repository.DeviceRepository;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -74,6 +75,12 @@ public class DeviceService {
         LOGGER.info("Fetch Device with ID: {}", id);
         return deviceRepository.findById(id)
                 .orElseThrow(() -> new DeviceNotFoundException(DEVICE_NOT_FOUND_WITH_ID + id));
+    }
+
+    @Transactional(readOnly = true)
+    public List<Device> getAllDevices() {
+        LOGGER.info("Fetch all Devices.");
+        return deviceRepository.findAll();
     }
 
     private boolean isToUpdateNameOrBrand(DevicePartiallyUpdateRequest devicePartiallyUpdateRequest) {

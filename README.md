@@ -58,7 +58,7 @@ http://localhost:8080/device-manager/swagger-ui/index.html
 - `PUT /devices/{id}`: Fully update an existing device.
 - `PATCH /devices/{id}`: Partially update an existing device.
 - `GET /devices/{id}`: Fetch a single device.
-- `GET /devices`: Fetch all devices. 🚧
+- `GET /devices`: Fetch all devices.
 - `GET /devices/brand/{brand}`: Fetch devices by brand. 🚧
 - `GET /devices/state/{state}`: Fetch devices by state. 🚧
 - `DELETE /devices/{id}`: Delete a single device. 🚧

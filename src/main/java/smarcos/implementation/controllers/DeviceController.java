@@ -4,6 +4,7 @@ import com.api.device.DeviceControllerApi;
 import com.model.device.DeviceCreationRequest;
 import com.model.device.DevicePartiallyUpdateRequest;
 import com.model.device.DeviceResponse;
+import com.model.device.DevicesResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,8 +44,13 @@ public class DeviceController implements DeviceControllerApi {
     }
 
     @Override
-    public ResponseEntity<DeviceResponse> getDeviceById(UUID id) throws Exception {
+    public ResponseEntity<DeviceResponse> getDeviceById(UUID id) {
         var device = deviceService.getDeviceById(id);
         return ResponseEntity.ok(DeviceMapper.toDeviceResponse(device));
+    }
+
+    @Override
+    public ResponseEntity<DevicesResponse> getAllDevices() {
+        return ResponseEntity.ok(DeviceMapper.toDevicesResponse(deviceService.getAllDevices()));
     }
 }

@@ -17,6 +17,7 @@ import smarcos.implementation.mapper.DeviceMapper;
 import smarcos.implementation.services.DeviceService;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.startsWith;
@@ -26,8 +27,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = DeviceController.class)
 @Tag("unit")
 class DeviceControllerTest {
-    public static final String DEVICE_NAME = "Device Name";
-    public static final String DEVICE_BRAND = "Device Brand";
     @Autowired
     private MockMvc mockMvc;
 
@@ -35,6 +34,8 @@ class DeviceControllerTest {
     private DeviceService deviceService;
 
     private static final String ID = "0d75f424-0ee4-48f8-83cd-c2067ab0c9bb";
+    private static final String DEVICE_NAME = "Device Name";
+    private static final String DEVICE_BRAND = "Device Brand";
 
     @Test
     void createDeviceSuccess() throws Exception {
@@ -140,5 +141,29 @@ class DeviceControllerTest {
                 .andExpect(jsonPath("$.brand").value(device.getBrand()))
                 .andExpect(jsonPath("$.state").value(device.getState().getValue()))
                 .andExpect(jsonPath("$.creationTime").value(startsWith(device.getCreationTime().toString().substring(0, 23))));
+    }
+
+    @Test
+    void getAllDevicesSuccess() throws Exception {
+        var device = new Device();
+        var time = OffsetDateTime.now();
+        var id = UUID.fromString(ID);
+        device.setId(id);
+        device.setName(DEVICE_NAME);
+        device.setState(StateDto.AVAILABLE);
+        device.setBrand(DEVICE_BRAND);
+        device.setCreationTime(time);
+        Mockito.when(deviceService.getAllDevices()).thenReturn(List.of(device));
+
+        var request = MockMvcRequestBuilders
+                .get("/api/v1/devices");
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.total").value(1))
+                .andExpect(jsonPath("$.items.[0].id").value(device.getId().toString()))
+                .andExpect(jsonPath("$.items.[0].name").value(device.getName()))
+                .andExpect(jsonPath("$.items.[0].brand").value(device.getBrand()))
+                .andExpect(jsonPath("$.items.[0].state").value(device.getState().getValue()))
+                .andExpect(jsonPath("$.items.[0].creationTime").value(startsWith(device.getCreationTime().toString().substring(0, 23))));
     }
 }
